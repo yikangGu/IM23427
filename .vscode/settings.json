@@ -1,6 +1,0 @@
-{
-    "python.pythonPath": "E:\\Users\\DELL\\Anaconda3\\envs\\ame\\python.exe",
-    "python.linting.pylintEnabled": false,
-    "python.linting.pep8Enabled": true,
-    "python.linting.enabled": true
-}
