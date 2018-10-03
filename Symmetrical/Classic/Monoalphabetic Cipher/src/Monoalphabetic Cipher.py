@@ -1,5 +1,6 @@
 from random import shuffle
-randalpha  = [x for x in range(26)]
+
+randalpha = [x for x in range(26)]
 shuffle(randalpha)
 
 
@@ -52,7 +53,8 @@ def main():
         ordAlpha = ord(alphabet)
         txAlphaCounter[
             ordAlpha-97] = txAlphaCounter[ordAlpha-97] + 1
-        encryptoText = encryptoText + chr(97 + ((ordAlpha + randalpha[ordAlpha-97]) % 26))
+        encryptoText = encryptoText + chr(97 + (
+            (ordAlpha + randalpha[ordAlpha - 97]) % 26))
 
     txAlphaSum = sum(txAlphaCounter)
     txAlphaFrequency = list(map(lambda x: x/txAlphaSum, txAlphaCounter))
@@ -62,9 +64,10 @@ def main():
         ordAlpha = ord(alphabet)
         encryptoCounter[
             ordAlpha-97] = encryptoCounter[ordAlpha-97] + 1
-    
+
     encryptoAlphaSum = sum(encryptoCounter)
-    encryptoAlphaFrequency = list(map(lambda x: x/encryptoAlphaSum, encryptoCounter))
+    encryptoAlphaFrequency = list(
+        map(lambda x: x/encryptoAlphaSum, encryptoCounter))
 
     print(randalpha)
     print(encryptoText)

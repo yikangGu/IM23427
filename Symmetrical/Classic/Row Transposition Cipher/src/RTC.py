@@ -4,7 +4,8 @@ import numpy as np
 def RTC(tx, key):
     keyStr = str(key)
     keyLenth = len(keyStr)
-    splitTx = [tx[n * keyLenth: (n + 1) * keyLenth] for n in range(int(len(tx) / keyLenth))]
+    splitTx = [tx[n * keyLenth: (n + 1) * keyLenth] for n in range(
+        int(len(tx) / keyLenth))]
     cipherTx = ''.join([j[int(i) - 1] for i in keyStr for j in splitTx])
     return cipherTx
 
