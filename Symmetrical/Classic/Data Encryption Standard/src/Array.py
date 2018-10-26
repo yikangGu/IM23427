@@ -1,4 +1,5 @@
 import numpy as np
+import bitarray as ba
 
 PLAINTEXT = "security"
 KEY = "science"
@@ -12,9 +13,32 @@ KEYPERMUTATION = np.array([[13, 16, 10, 23,  0,  4],
                            [45, 41, 49, 35, 38, 31]])
 
 
+def init(plain_text, key):
+    bits = bin(ord(plain_text[0]))[2:]
+    plainText_nparray = np.insert(
+        np.fromstring(ba.bitarray(bits).unpack(), dtype=bool), 0, 0)
+
+    for alpha in plain_text[1:]:
+        bits = bin(ord(alpha))[2:]
+        npbinary = np.insert(
+            np.fromstring(ba.bitarray(bits).unpack(), dtype=bool), 0, 0)
+        plainText_nparray = np.vstack([plainText_nparray, npbinary])
+
+    bits = bin(ord(key[0]))[2:]
+    np.fromstring(ba.bitarray(bits).unpack(), dtype=bool)
+    key_nparray = np.insert(
+        np.fromstring(ba.bitarray(bits).unpack(), dtype=bool), 0, 0)
+
+    for alpha in key[1:]:
+        bits = bin(ord(alpha))[2:]
+        npbinary = np.insert(
+            np.fromstring(ba.bitarray(bits).unpack(), dtype=bool), 0, 0)
+        key_nparray = np.vstack([key_nparray, npbinary])
+
+    return plainText_nparray, key_nparray
+
+
 def lazyFP(arrays):
-    # Debug
-    # arrays = np.arange(64).reshape(8, 8)
 
     perRule = np.array([4, 0, 5, 1, 6, 2, 7, 3])
     finalPermutation = np.fliplr(arrays[perRule]).T
@@ -23,7 +47,7 @@ def lazyFP(arrays):
 
 def focusInputFP(arrays):
     # T(n) = O(n)
-    finalPermutation = np.zeros((8, 8), np.int8)
+    finalPermutation = np.zeros((8, 8), np.bool)
 
     j = -1
     for row in arrays[:4]:
@@ -45,7 +69,7 @@ def focusInputFP(arrays):
 
 def focusOutputFP(arrays):
     # T(n) = O(n)
-    finalPermutation = np.zeros((8, 8), np.int8)
+    finalPermutation = np.zeros((8, 8), np.bool)
 
     for i in range(8):
         for j in range(4):
@@ -58,7 +82,7 @@ def focusOutputFP(arrays):
 
 def IP(arrays):
     # T(n) = O(n)
-    initialPermutation = np.zeros((8, 8), np.int8)
+    initialPermutation = np.zeros((8, 8), np.bool)
 
     for j in range(8):
         for i in range(4):
@@ -69,9 +93,25 @@ def IP(arrays):
     return initialPermutation
 
 
+def oddCodeCheck(arrays):
+    # it is beautiful
+    shift = np.zeros((8, 7), np.bool)
+    times = 0
+
+    for i in range(7):
+        for j in range(8):
+            shift[int(times / 7), times % 7] = arrays[i, j]
+            times = times + 1
+
+        expansion = np.array([np.append(
+            shift[i], not sum(shift[i]) % 2) for i in range(8)])
+
+    return expansion
+
+
 def KP(arrays):
     # T(n) = O(n)
-    keyPermutation = np.zeros((7, 8), np.int8)
+    keyPermutation = np.zeros((7, 8), np.bool)
 
     for j in range(8):
         for i in range(7):
@@ -82,7 +122,7 @@ def KP(arrays):
 
 def genKey(key):
     # key = np.arange(1, 65).reshape(8, 8)
-    keyPermutation = KP(key)
+    keyPermutation = KP(oddCodeCheck(key))
     shiftKP = np.reshape(keyPermutation, -1)
 
     upperKP = np.roll(shiftKP[:28], -1)
@@ -98,21 +138,25 @@ def genKey(key):
     return ki
 
 
-def DES(arrays, key, mode="encrypt"):
+def DES(plain_text, key, mode="encrypt"):
     #
-    null = np.arange(1, 65).reshape(8, 8)
-    initialPermutation = IP(null)
+    plainText_nparray, key_nparray = init(plain_text, key)
+    initialPermutation = IP(plainText_nparray)
 
     upper = initialPermutation[:4]
     lower = initialPermutation[4:]
 
-    genKey(lower)
+    key1 = genKey(key_nparray)
+    print(key1)
     pass
 
 
 def main():
-    arrays = np.arange(1, 65).reshape(8, 8)
-    print(genKey(arrays))
+    # For debug
+    # arrays = np.arange(64).reshape(8, 8)
+    # plainText_nparray, key_nparray = init(PLAINTEXT, KEY)
+
+    DES(PLAINTEXT, KEY)
     return 0
 
     plainText = input("please input your plain text : ")
