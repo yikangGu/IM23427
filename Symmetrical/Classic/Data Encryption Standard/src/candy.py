@@ -30,6 +30,46 @@ def focusInputFP(arrays):
     return finalPermutation
 
 
+def focusOutputFP(arrays):
+    # T(n) = O(n)
+    finalPermutation = np.zeros((8, 8), np.int8)
+
+    for i in range(8):
+        for j in range(4):
+
+            finalPermutation[i, j*2+1] = arrays[j, 7-i]
+            finalPermutation[i, j*2] = arrays[j+4, 7-i]
+
+    return finalPermutation
+
+
+def IP(arrays):
+    # T(n) = O(n)
+    initialPermutation = np.zeros((8, 8), np.int8)
+
+    for j in range(8):
+        for i in range(4):
+
+            initialPermutation[i, 7-j] = arrays[j, i*2+1]
+            initialPermutation[i+4, 7-j] = arrays[j, i*2]
+
+    return initialPermutation
+
+
+def oddCodeCheck(arrays):
+    shift = np.zeros((8, 8), np.int8)
+    couter = 0
+
+    for i in range(7):
+        for j in range(8):
+            shift[int(couter / 7), couter % 7] = arrays[i, j]
+            couter = couter + 1
+
+        shift[i, 7] = not (sum(shift[i]) % 2)
+
+    return shift
+
+
 def main():
     pass
 
