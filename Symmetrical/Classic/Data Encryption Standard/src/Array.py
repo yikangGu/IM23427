@@ -140,20 +140,20 @@ def oddCodeCheck(array):
 
 def KP(array):
 
-    keyRight = np.zeros(56, np.int8)
+    kp = np.zeros(56, np.int8)
     for i in range(56):
-        keyRight[i] = array[KEYPC1[i]]
+        kp[i] = array[KEYPC1[i]]
 
-    return keyRight
+    return kp
 
 
 def genKey(key):
-    # key = np.arange(1, 65)
-    keyRight = KP(oddCodeCheck(key))
+
+    kp = KP(oddCodeCheck(key))
     keyTable = np.zeros(16, dtype=object)
 
-    upperKP = keyRight[:28]
-    lowerKP = keyRight[28:]
+    upperKP = kp[:28]
+    lowerKP = kp[28:]
 
     for i in range(16):
         upperKP = np.roll(upperKP, SHIFTS[i])
@@ -171,11 +171,12 @@ def genKey(key):
 
 
 def EP(array):
-    e = np.zeros(48, np.int8)
-    for i in range(48):
-        e = array[EPERMUTATION[i]]
 
-    return e
+    ep = np.zeros(48, np.int8)
+    for i in range(48):
+        ep[i] = array[EPERMUTATION[i]]
+
+    return ep
 
 
 def sbox(i, j, sboxi):
@@ -188,14 +189,15 @@ def PP(array):
 
     """
 
-    p = np.zeros(32, np.int8)
+    pp = np.zeros(32, np.int8)
     for i in range(32):
-        p = array[PYIELD[i]]
+        pp[i] = array[PYIELD[i]]
 
-    return p
+    return pp
 
 
 def feistel(array, ki):
+
     p = np.zeros(32, np.int8)
     ep = EP(array)
     xor = np.logical_xor(ep, ki)
@@ -203,11 +205,19 @@ def feistel(array, ki):
     for index in range(8):
         bits = xor[index*6: index*6+6]
 
+        # e.g 110011
+        # i = 1    1 = 1*2 + 1 = 3
+        # j =  1001  = 1*8 + 0*4 + 0*2 + 1 = 9
         i = bits[0]*2 + bits[5]
         j = bits[1]*8 + bits[2]*4 + bits[3]*2 + bits[4]
 
         num = sbox(i, j, index)
 
+        # 13 = 1101
+        #      1    = int(13 / 8) % 2
+        #       1   = int(13 / 4) % 2
+        #        0  = int(13 / 2) % 2
+        #         1 = 13 % 2
         p[index*4] = int(num / 8) % 2
         p[index*4+1] = int(num / 4) % 2
         p[index*4+2] = int(num / 2) % 2
@@ -218,26 +228,29 @@ def feistel(array, ki):
     return f
 
 
-def DES(plain_text, key, mode="encrypt"):
+def DES(text, key, mode="encrypt"):
     '''
     Data Encryption Standard
 
     '''
+    # global L, R
 
-    plainText_nparray, key_nparray = init(plain_text, key)
-    initialPermutation = IP(plainText_nparray)
-    keyTable = genKey(key_nparray)
+    plainArray, keyArray = init(text, key)
+    ip = IP(plainArray)
+    keyTable = genKey(keyArray)
 
-    L = initialPermutation[:32]  # half of initial permutation
-    R = initialPermutation[32:]
+    L = ip[:32]  # half of initial permutation
+    R = ip[32:]
+    print(np.where(L, 1, 0).reshape(4, 8))
+    print(np.where(R, 1, 0).reshape(4, 8))
 
     for i in range(16):
-        temp = R
+        R_ = R
         R = np.logical_xor(L, feistel(R, keyTable[i]))
-        L = temp
+        L = R_
 
-    # print(np.where(L, 1, 0))
-    # print(np.where(R, 1, 0))
+        print(np.where(L, 1, 0).reshape(4, 8))
+        print(np.where(R, 1, 0).reshape(4, 8))
 
     c = np.concatenate((L, R), axis=None)
     fp = FP(c)
@@ -253,8 +266,8 @@ def main():
     for loop in range(times):
 
         # array = np.arange(16)
-        DES(PLAINTEXT, KEY).reshape(8, 8)
-        # print(feistel())
+        chiper = DES(PLAINTEXT, KEY).reshape(8, 8)
+        print(np.where(chiper, 1, 0))
 
     elapsed_timer = time.time() - start_timer
     print("elapsed time : " + str(elapsed_timer))
