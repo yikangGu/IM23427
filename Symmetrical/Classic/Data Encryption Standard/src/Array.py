@@ -241,16 +241,16 @@ def DES(text, key, mode="encrypt"):
 
     L = ip[:32]  # half of initial permutation
     R = ip[32:]
-    print(np.where(L, 1, 0).reshape(4, 8))
-    print(np.where(R, 1, 0).reshape(4, 8))
+    # print(np.where(L, 1, 0).reshape(4, 8))
+    # print(np.where(R, 1, 0).reshape(4, 8))
 
     for i in range(16):
         R_ = R
         R = np.logical_xor(L, feistel(R, keyTable[i]))
         L = R_
 
-        print(np.where(L, 1, 0).reshape(4, 8))
-        print(np.where(R, 1, 0).reshape(4, 8))
+        # print(np.where(L, 1, 0).reshape(4, 8))
+        # print(np.where(R, 1, 0).reshape(4, 8))
 
     c = np.concatenate((L, R), axis=None)
     fp = FP(c)
